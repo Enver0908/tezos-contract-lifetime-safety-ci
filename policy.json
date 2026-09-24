@@ -1,0 +1,6 @@
+{
+  "max_delta_percent": 15,
+  "min_delta_gas": 50,
+  "max_headroom_percent": 80,
+  "require_reproducible": true
+}

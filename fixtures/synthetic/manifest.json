@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "name": "synthetic-growth-suite",
+  "scenarios": [
+    {
+      "id": "list_append",
+      "script": "list_append.json",
+      "sizes": [0, 1000, 5000],
+      "storage_generator": "list_nat",
+      "input_generator": "unit",
+      "expected": "success"
+    },
+    {
+      "id": "list_iterate",
+      "script": "list_iterate.json",
+      "sizes": [0, 1000, 5000],
+      "storage_generator": "list_nat",
+      "input_generator": "unit",
+      "expected": "success"
+    },
+    {
+      "id": "bounded_list",
+      "script": "bounded_list.json",
+      "sizes": [0, 64, 65],
+      "storage_generator": "list_nat",
+      "input_generator": "unit",
+      "expected": "success"
+    },
+    {
+      "id": "loop",
+      "script": "loop.json",
+      "sizes": [0, 10000, 100000],
+      "storage_generator": "unit",
+      "input_generator": "nat",
+      "expected": "success"
+    },
+    {
+      "id": "map_iterate",
+      "script": "map_iterate.json",
+      "sizes": [0, 1000],
+      "storage_generator": "map_nat_nat",
+      "input_generator": "unit",
+      "expected": "success"
+    }
+  ]
+}

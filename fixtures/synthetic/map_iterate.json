@@ -1,0 +1,11 @@
+[
+  {"prim": "parameter", "args": [{"prim": "unit"}]},
+  {"prim": "storage", "args": [{"prim": "map", "args": [{"prim": "nat"}, {"prim": "nat"}]}]},
+  {"prim": "code", "args": [[
+    {"prim": "CDR"},
+    {"prim": "DUP"},
+    {"prim": "ITER", "args": [[{"prim": "DROP"}]]},
+    {"prim": "NIL", "args": [{"prim": "operation"}]},
+    {"prim": "PAIR"}
+  ]]}
+]

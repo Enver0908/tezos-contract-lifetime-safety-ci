@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "name": "synthetic-regression-gate",
+  "scenarios": [
+    {
+      "id": "regression_gate_list_append",
+      "script": "list_append.json",
+      "sizes": [0],
+      "storage_generator": "list_nat",
+      "input_generator": "unit",
+      "expected": "success"
+    }
+  ]
+}

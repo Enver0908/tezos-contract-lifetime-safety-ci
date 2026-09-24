@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "octez_image": "tezos/tezos:octez-v25.2",
+  "octez_digest": "tezos/tezos@sha256:409124c53d848413eb83a5d1b19164fec5afe56117073534b657042d04173d07",
+  "octez_version": "Octez 25.2",
+  "protocol": "PsUshuai9QapM5TGj1JpuVGkdxz5GykdnEvS6Rh8SUVrARvZLCY",
+  "chain_id": "NetXdQprcVkpaWU",
+  "hard_gas_limit_per_operation": 1040000,
+  "source": "Tezos mainnet protocol constants snapshot verified during MVP setup"
+}

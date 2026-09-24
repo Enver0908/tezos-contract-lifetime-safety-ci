@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+outputs/
+.qa-clean-*/
+.tlsci-payload-*.json
+fixtures/real/
+references/
+build/

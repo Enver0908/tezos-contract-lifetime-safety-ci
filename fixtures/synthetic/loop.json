@@ -1,0 +1,28 @@
+[
+  {"prim": "parameter", "args": [{"prim": "nat"}]},
+  {"prim": "storage", "args": [{"prim": "unit"}]},
+  {"prim": "code", "args": [[
+    {"prim": "CAR"},
+    {"prim": "DUP"},
+    {"prim": "PUSH", "args": [{"prim": "nat"}, {"int": "0"}]},
+    {"prim": "COMPARE"},
+    {"prim": "EQ"},
+    {"prim": "NOT"},
+    {"prim": "LOOP", "args": [[
+      {"prim": "PUSH", "args": [{"prim": "nat"}, {"int": "1"}]},
+      {"prim": "SWAP"},
+      {"prim": "SUB"},
+      {"prim": "ABS"},
+      {"prim": "DUP"},
+      {"prim": "PUSH", "args": [{"prim": "nat"}, {"int": "0"}]},
+      {"prim": "COMPARE"},
+      {"prim": "EQ"},
+      {"prim": "NOT"}
+    ]]},
+    {"prim": "DROP"},
+    {"prim": "NIL", "args": [{"prim": "operation"}]},
+    {"prim": "PUSH", "args": [{"prim": "unit"}, {"prim": "Unit"}]},
+    {"prim": "SWAP"},
+    {"prim": "PAIR"}
+  ]]}
+]

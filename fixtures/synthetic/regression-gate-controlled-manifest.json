@@ -1,0 +1,21 @@
+{
+  "controlled_mutation": {
+    "mutation": "prepend PUSH nat 0; DROP repetitions times to each script code",
+    "repetitions": 500,
+    "semantic_intent": "preserve the original entrypoint result while increasing execution cost"
+  },
+  "name": "synthetic-regression-gate-controlled-regression",
+  "scenarios": [
+    {
+      "expected": "success",
+      "id": "regression_gate_list_append",
+      "input_generator": "unit",
+      "script": "list_append.controlled-500.json",
+      "sizes": [
+        0
+      ],
+      "storage_generator": "list_nat"
+    }
+  ],
+  "schema_version": 1
+}

@@ -1,0 +1,21 @@
+[
+  {"prim": "parameter", "args": [{"prim": "unit"}]},
+  {"prim": "storage", "args": [{"prim": "list", "args": [{"prim": "nat"}]}]},
+  {"prim": "code", "args": [[
+    {"prim": "CDR"},
+    {"prim": "DUP"},
+    {"prim": "SIZE"},
+    {"prim": "PUSH", "args": [{"prim": "nat"}, {"int": "64"}]},
+    {"prim": "COMPARE"},
+    {"prim": "GT"},
+    {"prim": "IF", "args": [
+      [
+        {"prim": "PUSH", "args": [{"prim": "nat"}, {"int": "1"}]},
+        {"prim": "CONS"}
+      ],
+      []
+    ]},
+    {"prim": "NIL", "args": [{"prim": "operation"}]},
+    {"prim": "PAIR"}
+  ]]}
+]

@@ -1,0 +1,25 @@
+[
+  {"prim":"parameter","args":[{"prim":"address"}]},
+  {"prim":"storage","args":[{"prim":"unit"}]},
+  {"prim":"code","args":[[
+    {"prim":"CAR"},
+    {"prim":"CONTRACT","annots":["%transfer"],"args":[
+      {"prim":"pair","args":[
+        {"prim":"address"},
+        {"prim":"pair","args":[{"prim":"address"},{"prim":"nat"}]}
+      ]}
+    ]},
+    {"prim":"IF_NONE","args":[
+      [
+        {"prim":"PUSH","args":[{"prim":"string"},{"string":"none"}]},
+        {"prim":"FAILWITH"}
+      ],
+      []
+    ]},
+    {"prim":"DROP"},
+    {"prim":"NIL","args":[{"prim":"operation"}]},
+    {"prim":"PUSH","args":[{"prim":"unit"},{"prim":"Unit"}]},
+    {"prim":"SWAP"},
+    {"prim":"PAIR"}
+  ]]}
+]

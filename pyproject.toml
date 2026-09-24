@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tezos-lifetime-safety-ci"
+version = "0.1.0"
+description = "Protocol-pinned Tezos resource-growth CI guard"
+requires-python = ">=3.10"
+
+[project.scripts]
+tlsci = "tlsci.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["tlsci*"]
+exclude = ["tests*", "fixtures*", "outputs*", "references*"]
+
+[tool.unittest]
+test-pattern = "test_*.py"
