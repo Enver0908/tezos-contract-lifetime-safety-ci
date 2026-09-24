@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from .baseline import build_baseline, load_baseline, save_baseline
-from .capture import capture_big_map_key, capture_contract
+from .capture import CaptureError, capture_big_map_key, capture_contract
 from .measure import measure_scenario
 from .models import Measurement, RunReport
 from .octez import OctezRunner
@@ -246,6 +246,9 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "acceptance":
             return command_acceptance()
         raise RuntimeError(f"unsupported command: {args.command}")
-    except (ManifestError, RuntimeErrorState, FileNotFoundError, ValueError) as exc:
+    except (ManifestError, FileNotFoundError, ValueError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    except (CaptureError, RuntimeErrorState) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 3
