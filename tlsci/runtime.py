@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import subprocess
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -46,15 +47,20 @@ def run_runtime_command(runtime: RuntimeLock, *args: str, timeout: int = 30) -> 
 
 
 def doctor(runtime: RuntimeLock) -> dict[str, Any]:
-    version = run_runtime_command(runtime, "--version", timeout=30)
-    protocols = run_runtime_command(runtime, "list", "mockup", "protocols", timeout=30)
-    constants = run_runtime_command(
-        runtime,
-        "rpc",
-        "get",
-        "/chains/main/blocks/head/context/constants",
-        timeout=30,
-    )
+    from .octez import OctezRunner
+
+    try:
+        with tempfile.TemporaryDirectory(prefix="tlsci-doctor-") as workdir:
+            with OctezRunner(runtime, Path(workdir), timeout=30) as runner:
+                version = runner.run_client_command("--version")
+                protocols = runner.run_client_command("list", "mockup", "protocols")
+                constants = runner.run_client_command(
+                    "rpc",
+                    "get",
+                    "/chains/main/blocks/head/context/constants",
+                )
+    except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
+        raise RuntimeErrorState(f"Octez doctor could not complete: {exc}") from exc
     version_text = (version.stdout or version.stderr).strip()
     protocol_text = protocols.stdout.strip()
     constants_values = extract_json_values(f"{constants.stdout}\n{constants.stderr}")

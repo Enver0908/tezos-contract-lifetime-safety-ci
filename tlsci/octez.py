@@ -20,6 +20,8 @@ class OctezRunner:
         self.project_root = project_root
         self.timeout = timeout
         self.container_name: str | None = None
+        self._payload_temp: tempfile.TemporaryDirectory | None = None
+        self._payload_dir: Path | None = None
 
     def __enter__(self) -> "OctezRunner":
         self.start()
@@ -32,6 +34,9 @@ class OctezRunner:
         if self.container_name is not None:
             return
         self.container_name = f"tlsci-{os.getpid()}-{uuid.uuid4().hex[:10]}"
+        self._payload_temp = tempfile.TemporaryDirectory(prefix="tlsci-octez-payload-")
+        self._payload_dir = Path(self._payload_temp.name)
+        os.chmod(self._payload_dir, 0o711)
         command = [
             "docker",
             "run",
@@ -41,6 +46,8 @@ class OctezRunner:
             "none",
             "--volume",
             f"{self.project_root.resolve()}:/workspace:ro",
+            "--volume",
+            f"{self._payload_dir.resolve()}:/tlsci-tmp:ro",
             "--name",
             self.container_name,
             "--entrypoint",
@@ -51,12 +58,28 @@ class OctezRunner:
         try:
             completed = subprocess.run(command, capture_output=True, text=True, timeout=self.timeout, check=False)
         except FileNotFoundError as exc:
-            self.container_name = None
+            self.close()
             raise RuntimeError("docker executable was not found") from exc
         if completed.returncode != 0:
             name = self.container_name
-            self.container_name = None
+            self.close()
             raise RuntimeError(f"failed to start Octez container {name}: {completed.stderr[-1000:]}")
+
+        try:
+            initialized = subprocess.run(
+                self._octez_command("create", "mockup"),
+                capture_output=True,
+                text=True,
+                timeout=self.timeout,
+                check=False,
+            )
+        except (OSError, subprocess.SubprocessError) as exc:
+            self.close()
+            raise RuntimeError(f"failed to initialize Octez mockup client directory: {exc}") from exc
+        if initialized.returncode != 0:
+            details = (initialized.stderr or initialized.stdout)[-1000:]
+            self.close()
+            raise RuntimeError(f"failed to initialize Octez mockup client directory: {details}")
 
     def close(self) -> None:
         if self.container_name is None:
@@ -64,6 +87,10 @@ class OctezRunner:
         name = self.container_name
         self.container_name = None
         subprocess.run(["docker", "rm", "-f", name], capture_output=True, text=True, timeout=self.timeout, check=False)
+        if self._payload_temp is not None:
+            self._payload_temp.cleanup()
+            self._payload_temp = None
+            self._payload_dir = None
 
     def _octez_command(self, *args: str) -> list[str]:
         if self.container_name is None:
@@ -79,6 +106,15 @@ class OctezRunner:
             "mockup",
             *args,
         ]
+
+    def run_client_command(self, *args: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            self._octez_command(*args),
+            capture_output=True,
+            text=True,
+            timeout=self.timeout,
+            check=False,
+        )
 
     def _script_path(self, script: Path) -> Path:
         path = script if script.is_absolute() else self.project_root / script
@@ -123,23 +159,30 @@ class OctezRunner:
 
         body = canonical_json(payload)
         payload_path: Path | None = None
+        if self._payload_dir is None:
+            return ExecutionResult(
+                status="rpc_error",
+                gas_budget=gas_budget,
+                error_ids=("tlsci.runner_not_started",),
+            )
         try:
             with tempfile.NamedTemporaryFile(
                 mode="w",
                 encoding="utf-8",
                 suffix=".json",
                 prefix=".tlsci-payload-",
-                dir=self.project_root,
+                dir=self._payload_dir,
                 delete=False,
             ) as payload_file:
                 payload_file.write(body)
                 payload_path = Path(payload_file.name)
+            os.chmod(payload_path, 0o644)
             command = self._octez_command(
                 "rpc",
                 "post",
                 "/chains/main/blocks/head/helpers/scripts/run_code",
                 "with",
-                f"file:/workspace/{payload_path.name}",
+                f"file:/tlsci-tmp/{payload_path.name}",
             )
         except OSError as exc:
             return ExecutionResult(
