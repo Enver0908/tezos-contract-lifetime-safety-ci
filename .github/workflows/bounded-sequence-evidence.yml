@@ -36,6 +36,12 @@ jobs:
             --run-id "$GITHUB_RUN_ID" \
             --run-attempt "$GITHUB_RUN_ATTEMPT" \
             --workflow-ref "$GITHUB_WORKFLOW_REF"
+      - name: Pre-pull the exact pinned Octez image
+        shell: bash
+        run: |
+          set -euo pipefail
+          image="$(python -c 'import json; print(json.load(open("runtime.lock.json", encoding="utf-8"))["octez_digest"])')"
+          docker pull "$image"
       - name: Verify pinned Octez image, protocol, and gas limit
         run: tlsci --runtime "$GITHUB_WORKSPACE/runtime.lock.json" doctor
       - name: Build and measure first fresh 4,096-call chain
