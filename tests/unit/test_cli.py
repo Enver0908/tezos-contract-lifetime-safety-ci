@@ -8,10 +8,20 @@ from unittest.mock import patch
 
 from tlsci.capture import CaptureError
 from tlsci.cli import PROJECT_ROOT, _load_policy, main
+from tlsci.models import RuntimeLock
+from tlsci.octez import MAX_RUN_CODE_PAYLOAD_BYTES, OctezRunner
 from tlsci.runtime import RuntimeErrorState
 
 
 class CliConfigurationTests(unittest.TestCase):
+    def test_runner_rejects_non_positive_timeout(self) -> None:
+        runtime = RuntimeLock(1, "image", "digest", "version", "protocol", "chain", 1000)
+        with self.assertRaisesRegex(ValueError, "positive"):
+            OctezRunner(runtime, PROJECT_ROOT, timeout=0)
+
+    def test_payload_limit_is_fixed_at_16_mib(self) -> None:
+        self.assertEqual(MAX_RUN_CODE_PAYLOAD_BYTES, 16 * 1024 * 1024)
+
     def test_missing_policy_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             missing = Path(directory) / "missing-policy.json"
@@ -109,6 +119,29 @@ class CliConfigurationTests(unittest.TestCase):
 
         self.assertEqual(result, 3)
         self.assertIn("error:", stderr.getvalue())
+
+    def test_legacy_baseline_is_rejected_before_runtime_starts(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            legacy = Path(directory) / "legacy.json"
+            legacy.write_text(
+                json.dumps({"schema_version": 1, "runtime": {}, "scenarios": {"x:0": {}}}),
+                encoding="utf-8",
+            )
+            stderr = io.StringIO()
+            with patch("tlsci.cli.OctezRunner") as runner, contextlib.redirect_stderr(stderr):
+                result = main(
+                    [
+                        "--runtime", str(PROJECT_ROOT / "runtime.lock.json"),
+                        "run",
+                        "--manifest", str(PROJECT_ROOT / "fixtures" / "synthetic" / "manifest.json"),
+                        "--baseline", str(legacy),
+                        "--policy", str(PROJECT_ROOT / "policy.json"),
+                        "--output-dir", str(Path(directory) / "out"),
+                    ]
+                )
+            self.assertEqual(result, 2)
+            runner.assert_not_called()
+            self.assertIn("regenerate", stderr.getvalue())
 
     def test_capture_failure_returns_execution_error_exit_code(self) -> None:
         stderr = io.StringIO()

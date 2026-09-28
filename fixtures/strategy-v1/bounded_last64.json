@@ -1,0 +1,45 @@
+[
+  {"prim": "parameter", "args": [{"prim": "unit"}]},
+  {"prim": "storage", "args": [{"prim": "list", "args": [{"prim": "nat"}]}]},
+  {"prim": "code", "args": [[
+    {"prim": "CDR"},
+    {"prim": "PUSH", "args": [{"prim": "nat"}, {"int": "1"}]},
+    {"prim": "CONS"},
+    {"prim": "NIL", "args": [{"prim": "nat"}]},
+    {"prim": "PUSH", "args": [{"prim": "nat"}, {"int": "0"}]},
+    {"prim": "PAIR"},
+    {"prim": "SWAP"},
+    {"prim": "ITER", "args": [[
+      {"prim": "SWAP"},
+      {"prim": "UNPAIR"},
+      {"prim": "DUP"},
+      {"prim": "PUSH", "args": [{"prim": "nat"}, {"int": "64"}]},
+      {"prim": "COMPARE"},
+      {"prim": "GT"},
+      {"prim": "IF", "args": [
+        [
+          {"prim": "DIG", "args": [{"int": "2"}]},
+          {"prim": "DIG", "args": [{"int": "2"}]},
+          {"prim": "SWAP"},
+          {"prim": "CONS"},
+          {"prim": "SWAP"},
+          {"prim": "PUSH", "args": [{"prim": "nat"}, {"int": "1"}]},
+          {"prim": "ADD"},
+          {"prim": "PAIR"}
+        ],
+        [
+          {"prim": "DIG", "args": [{"int": "2"}]},
+          {"prim": "DROP"},
+          {"prim": "PAIR"}
+        ]
+      ]}
+    ]]},
+    {"prim": "UNPAIR"},
+    {"prim": "DROP"},
+    {"prim": "NIL", "args": [{"prim": "nat"}]},
+    {"prim": "SWAP"},
+    {"prim": "ITER", "args": [[{"prim": "CONS"}]]},
+    {"prim": "NIL", "args": [{"prim": "operation"}]},
+    {"prim": "PAIR"}
+  ]]}
+]

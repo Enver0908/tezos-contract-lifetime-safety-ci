@@ -182,6 +182,43 @@ class ExecutionContext:
 
 
 @dataclass(frozen=True)
+class CaseSpec:
+    size: int
+    storage_file: str
+    input_file: str
+    context_file: str
+    state_validity: str = "constructed_state"
+    expected_status: str = "success"
+    sequence_trace_file: str | None = None
+    sequence_index: int | None = None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "CaseSpec":
+        if type(data.get("size")) is not int:
+            raise ValueError("explicit case size must be an integer")
+        if data.get("sequence_index") is not None and type(data.get("sequence_index")) is not int:
+            raise ValueError("explicit case sequence_index must be an integer")
+        return cls(
+            size=data["size"],
+            storage_file=str(data["storage_file"]),
+            input_file=str(data["input_file"]),
+            context_file=str(data["context_file"]),
+            state_validity=str(data.get("state_validity", "constructed_state")),
+            expected_status=str(data.get("expected_status", "success")),
+            sequence_trace_file=(
+                str(data["sequence_trace_file"])
+                if data.get("sequence_trace_file") is not None
+                else None
+            ),
+            sequence_index=(
+                data["sequence_index"]
+                if data.get("sequence_index") is not None
+                else None
+            ),
+        )
+
+
+@dataclass(frozen=True)
 class ScenarioSpec:
     scenario_id: str
     script: str
@@ -196,10 +233,18 @@ class ScenarioSpec:
     input_template: Any | None = None
     storage_template_file: str | None = None
     input_template_file: str | None = None
+    manifest_schema_version: int = 1
+    measurement_cap: int | None = None
+    cases: tuple[CaseSpec, ...] = ()
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ScenarioSpec":
-        sizes = tuple(int(size) for size in data.get("sizes", ()))
+    def from_dict(cls, data: dict[str, Any], manifest_schema_version: int = 1) -> "ScenarioSpec":
+        cases = tuple(CaseSpec.from_dict(item) for item in data.get("cases", ()))
+        sizes = (
+            tuple(case.size for case in cases)
+            if manifest_schema_version == 2
+            else tuple(int(size) for size in data.get("sizes", ()))
+        )
         if not sizes or any(size < 0 for size in sizes):
             raise ValueError(f"scenario {data.get('id')} must contain non-negative sizes")
         return cls(
@@ -216,6 +261,13 @@ class ScenarioSpec:
             input_template=data.get("input_template"),
             storage_template_file=data.get("storage_template_file"),
             input_template_file=data.get("input_template_file"),
+            manifest_schema_version=manifest_schema_version,
+            measurement_cap=(
+                int(data["measurement_cap"])
+                if data.get("measurement_cap") is not None
+                else None
+            ),
+            cases=cases,
         )
 
 
@@ -226,6 +278,7 @@ class ExecutionResult:
     storage: Any | None = None
     operations: list[Any] = field(default_factory=list)
     lazy_storage_diff: Any | None = None
+    events: list[Any] = field(default_factory=list)
     error_ids: tuple[str, ...] = ()
     stdout_sha256: str | None = None
     stderr_sha256: str | None = None
@@ -255,10 +308,17 @@ class Measurement:
     operations_count: int | None
     fixture_sha256: str
     code_sha256: str
-    measurement_method: str = "integer_budget_search"
+    measurement_method: str = "integer_budget_search_v2"
     execution_scope: str = "single_script"
+    state_validity: str = "constructed_state"
     internal_operations_executed: bool = False
     error_ids: tuple[str, ...] = ()
+    cap_kind: str = "protocol"
+    context_sha256: str | None = None
+    semantic_output_sha256: str | None = None
+    semantic_output: dict[str, Any] | None = None
+    input_bytes: int | None = None
+    state_trace_sha256: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         data = _jsonable(asdict(self))
@@ -274,10 +334,23 @@ class Baseline:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Baseline":
+        if not isinstance(data, dict):
+            raise ValueError("baseline must contain a JSON object")
+        schema_version = data.get("schema_version", 0)
+        if type(schema_version) is not int:
+            raise ValueError("baseline schema_version must be an integer")
+        if schema_version not in {2, 3}:
+            raise ValueError(
+                f"baseline schema_version {schema_version} is unsupported; regenerate it from a supported report"
+            )
+        runtime = data.get("runtime")
+        scenarios = data.get("scenarios")
+        if not isinstance(runtime, dict) or not isinstance(scenarios, dict):
+            raise ValueError("baseline runtime and scenarios must be JSON objects")
         return cls(
-            schema_version=int(data["schema_version"]),
-            runtime=dict(data["runtime"]),
-            scenarios=dict(data["scenarios"]),
+            schema_version=schema_version,
+            runtime=dict(runtime),
+            scenarios=dict(scenarios),
         )
 
 
@@ -292,6 +365,7 @@ class PolicyDecision:
     delta_gas: int | None
     delta_percent: str | None
     message: str
+    max_successful_gas_budget: int | None = None
 
     def to_dict(self) -> dict[str, Any]:
         data = _jsonable(asdict(self))
@@ -309,6 +383,7 @@ class RunReport:
     decisions: list[PolicyDecision] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     provenance: dict[str, Any] = field(default_factory=dict)
+    coverage: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -320,4 +395,5 @@ class RunReport:
             "decisions": [decision.to_dict() for decision in self.decisions],
             "errors": list(self.errors),
             "provenance": _jsonable(self.provenance),
+            "coverage": _jsonable(self.coverage),
         }

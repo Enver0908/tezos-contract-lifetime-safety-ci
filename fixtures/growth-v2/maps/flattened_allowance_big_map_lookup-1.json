@@ -1,0 +1,21 @@
+[
+  {
+    "args": [
+      {
+        "args": [
+          {
+            "string": "tz1ddb9NMYHZi5UzPdzTZMYQQZoMub195zgv"
+          },
+          {
+            "string": "tz1ddb9NMYHZi5UzPdzTZMYQQZoMub195zgv"
+          }
+        ],
+        "prim": "Pair"
+      },
+      {
+        "int": "1"
+      }
+    ],
+    "prim": "Elt"
+  }
+]

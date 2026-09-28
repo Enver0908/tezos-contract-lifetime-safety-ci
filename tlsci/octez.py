@@ -14,8 +14,13 @@ from .runtime import docker_octez_command
 from .util import canonical_json, sha256_bytes, tail
 
 
+MAX_RUN_CODE_PAYLOAD_BYTES = 16 * 1024 * 1024
+
+
 class OctezRunner:
     def __init__(self, runtime: RuntimeLock, project_root: Path, timeout: int = 30) -> None:
+        if timeout <= 0:
+            raise ValueError("Octez timeout must be a positive number of seconds")
         self.runtime = runtime
         self.project_root = project_root
         self.timeout = timeout
@@ -158,6 +163,17 @@ class OctezRunner:
             payload["extra_big_maps"] = list(context.extra_big_maps)
 
         body = canonical_json(payload)
+        payload_bytes = body.encode("utf-8")
+        if len(payload_bytes) > MAX_RUN_CODE_PAYLOAD_BYTES:
+            return ExecutionResult(
+                status="fixture_error",
+                gas_budget=gas_budget,
+                error_ids=("tlsci.fixture_payload_too_large",),
+                raw_stderr_tail=(
+                    f"serialized run_code payload is {len(payload_bytes)} bytes; "
+                    f"limit is {MAX_RUN_CODE_PAYLOAD_BYTES} bytes"
+                ),
+            )
         payload_path: Path | None = None
         if self._payload_dir is None:
             return ExecutionResult(
@@ -232,12 +248,26 @@ class OctezRunner:
             None,
         )
         if isinstance(output, dict) and "storage" in output and "operations" in output:
+            raw_operations = list(output.get("operations", []))
+            emitted_events = [
+                item for item in raw_operations
+                if isinstance(item, dict) and item.get("kind") == "event"
+            ]
+            explicit_events = output.get("events", [])
+            if isinstance(explicit_events, list):
+                for event in explicit_events:
+                    if event not in emitted_events:
+                        emitted_events.append(event)
             return ExecutionResult(
                 status="success",
                 gas_budget=gas_budget,
                 storage=output.get("storage"),
-                operations=list(output.get("operations", [])),
+                operations=[
+                    item for item in raw_operations
+                    if not (isinstance(item, dict) and item.get("kind") == "event")
+                ],
                 lazy_storage_diff=output.get("lazy_storage_diff"),
+                events=emitted_events,
                 stdout_sha256=sha256_bytes(stdout.encode("utf-8")),
                 stderr_sha256=sha256_bytes(stderr.encode("utf-8")),
                 raw_stdout_tail=tail(stdout),

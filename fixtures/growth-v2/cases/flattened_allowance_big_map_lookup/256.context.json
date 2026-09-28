@@ -1,0 +1,14 @@
+{
+  "amount": "0",
+  "balance": "1000000",
+  "chain_id": "NetXdQprcVkpaWU",
+  "extra_big_maps": [
+    {
+      "id": "3000001",
+      "map_literal_file": "maps/flattened_allowance_big_map_lookup-256.json",
+      "type_index": 0,
+      "type_script": "contracts/synthetic/flattened_allowance_lookup.json"
+    }
+  ],
+  "source": "tz1ddb9NMYHZi5UzPdzTZMYQQZoMub195zgv"
+}

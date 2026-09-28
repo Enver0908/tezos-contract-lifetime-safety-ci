@@ -25,23 +25,14 @@ jobs:
         run: |
           cd "$RUNNER_TEMP"
           tlsci --runtime "$GITHUB_WORKSPACE/runtime.lock.json" doctor
-      - name: Run synthetic lifetime guard
-        run: |
-          cd "$RUNNER_TEMP"
-          tlsci --runtime "$GITHUB_WORKSPACE/runtime.lock.json" run \
-            --manifest "$GITHUB_WORKSPACE/fixtures/synthetic/manifest.json" \
-            --baseline "$GITHUB_WORKSPACE/fixtures/synthetic/baseline.json" \
-            --policy "$GITHUB_WORKSPACE/policy.json" \
-            --output-dir "$GITHUB_WORKSPACE/outputs/ci" \
-            --timeout 60
-      - name: Verify regression gate returns failure on controlled change
+      - name: Verify v2 regression gate returns failure on controlled change
         shell: bash
         run: |
           set +e
           cd "$RUNNER_TEMP"
           tlsci --runtime "$GITHUB_WORKSPACE/runtime.lock.json" run \
             --manifest "$GITHUB_WORKSPACE/fixtures/synthetic/regression-gate-controlled-manifest.json" \
-            --baseline "$GITHUB_WORKSPACE/fixtures/synthetic/regression-gate-baseline.json" \
+            --baseline "$GITHUB_WORKSPACE/fixtures/synthetic/regression-gate-baseline-v2.json" \
             --policy "$GITHUB_WORKSPACE/policy.json" \
             --output-dir "$GITHUB_WORKSPACE/outputs/regression-ci" \
             --timeout 60
@@ -60,13 +51,11 @@ jobs:
           decisions = report["decisions"]
           assert decisions and all("GAS_REGRESSION" in item["rule_ids"] for item in decisions)
           PY
-      - name: Upload lifetime report
+      - name: Upload controlled regression report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: tezos-lifetime-safety-report
-          path: |
-            outputs/ci/
-            outputs/regression-ci/
+          name: tezos-lifetime-safety-regression-report
+          path: outputs/regression-ci/
           if-no-files-found: warn
           retention-days: 7

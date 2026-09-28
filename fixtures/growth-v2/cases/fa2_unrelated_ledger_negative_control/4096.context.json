@@ -1,0 +1,35 @@
+{
+  "amount": "0",
+  "balance": "1000000",
+  "chain_id": "NetXdQprcVkpaWU",
+  "entrypoint": "transfer",
+  "extra_big_maps": [
+    {
+      "id": "2000001",
+      "map_literal_file": "maps/fa2_unrelated_ledger_negative_control-4096-ledger.json",
+      "type_index": 0,
+      "type_script": "contracts/fa2.json"
+    },
+    {
+      "id": "2000002",
+      "map_literal_file": "maps/fa2-operators-empty.json",
+      "type_index": 1,
+      "type_script": "contracts/fa2.json"
+    },
+    {
+      "id": "2000003",
+      "map_literal_file": "maps/fa2-token-metadata.json",
+      "type_index": 2,
+      "type_script": "contracts/fa2.json"
+    },
+    {
+      "id": "2000004",
+      "map_literal_file": "maps/fa2-metadata-empty.json",
+      "type_index": 3,
+      "type_script": "contracts/fa2.json"
+    }
+  ],
+  "level": 1,
+  "now": "86400",
+  "source": "tz1ddb9NMYHZi5UzPdzTZMYQQZoMub195zgv"
+}

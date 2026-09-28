@@ -1,0 +1,14 @@
+[
+  {
+    "prim": "Right",
+    "args": [
+      {
+        "prim": "Pair",
+        "args": [
+          {"string": "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb"},
+          {"int": "0"}
+        ]
+      }
+    ]
+  }
+]

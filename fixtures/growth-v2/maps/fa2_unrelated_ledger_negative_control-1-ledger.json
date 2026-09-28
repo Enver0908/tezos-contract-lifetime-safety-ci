@@ -1,0 +1,35 @@
+[
+  {
+    "args": [
+      {
+        "string": "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb"
+      },
+      {
+        "int": "0"
+      }
+    ],
+    "prim": "Elt"
+  },
+  {
+    "args": [
+      {
+        "string": "tz1WfPm7KooUDEzdgvcfxdoq4av6mzySC8Aj"
+      },
+      {
+        "int": "0"
+      }
+    ],
+    "prim": "Elt"
+  },
+  {
+    "args": [
+      {
+        "string": "tz1ddb9NMYHZi5UzPdzTZMYQQZoMub195zgv"
+      },
+      {
+        "int": "65536"
+      }
+    ],
+    "prim": "Elt"
+  }
+]

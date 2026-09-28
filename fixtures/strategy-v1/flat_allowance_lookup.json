@@ -1,0 +1,32 @@
+[
+  {"prim": "parameter", "args": [{"prim": "unit"}]},
+  {"prim": "storage", "args": [{"prim": "pair", "args": [
+    {"prim": "big_map", "args": [
+      {"prim": "pair", "args": [{"prim": "address"}, {"prim": "address"}]},
+      {"prim": "nat"}
+    ]},
+    {"prim": "nat"}
+  ]}]},
+  {"prim": "code", "args": [[
+    {"prim": "CDR"},
+    {"prim": "UNPAIR"},
+    {"prim": "DUP"},
+    {"prim": "PUSH", "args": [
+      {"prim": "pair", "args": [{"prim": "address"}, {"prim": "address"}]},
+      {"prim": "Pair", "args": [
+        {"string": "tz1ddb9NMYHZi5UzPdzTZMYQQZoMub195zgv"},
+        {"string": "tz1ddb9NMYHZi5UzPdzTZMYQQZoMub195zgv"}
+      ]}
+    ]},
+    {"prim": "GET"},
+    {"prim": "IF_NONE", "args": [
+      [{"prim": "PUSH", "args": [{"prim": "nat"}, {"int": "0"}]}],
+      []
+    ]},
+    {"prim": "DIP", "args": [[{"prim": "SWAP"}, {"prim": "DROP"}]]},
+    {"prim": "SWAP"},
+    {"prim": "PAIR"},
+    {"prim": "NIL", "args": [{"prim": "operation"}]},
+    {"prim": "PAIR"}
+  ]]}
+]

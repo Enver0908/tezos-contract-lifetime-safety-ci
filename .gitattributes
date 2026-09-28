@@ -1,0 +1,8 @@
+# Preserve byte-for-byte inputs used by content-addressed experiment fixtures.
+runtime.lock.json -text
+policy.json -text
+fixtures/bounded-sequence-v1/** -text
+fixtures/growth-v2/** -text
+fixtures/strategy-v1/** -text
+fixtures/synthetic/confirmatory-v1.json -text
+fixtures/synthetic/regression-gate-baseline-v2.json -text

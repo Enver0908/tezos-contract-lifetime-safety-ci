@@ -1,0 +1,29 @@
+{
+  "amount": "0",
+  "balance": "1000000",
+  "chain_id": "NetXdQprcVkpaWU",
+  "entrypoint": "sign_proposal",
+  "extra_big_maps": [
+    {
+      "id": "1000001",
+      "map_literal_file": "maps/tzsafe-proposals-64.json",
+      "type_index": 0,
+      "type_script": "contracts/tzsafe.json"
+    },
+    {
+      "id": "1000002",
+      "map_literal_file": "maps/tzsafe-archives-empty.json",
+      "type_index": 1,
+      "type_script": "contracts/tzsafe.json"
+    },
+    {
+      "id": "1000003",
+      "map_literal_file": "maps/tzsafe-metadata-empty.json",
+      "type_index": 2,
+      "type_script": "contracts/tzsafe.json"
+    }
+  ],
+  "level": 2,
+  "now": "86401",
+  "source": "tz1KhTQTapxx7whD9iLyoUoE8MU9MfoiWnsB"
+}

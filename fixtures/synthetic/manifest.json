@@ -20,11 +20,12 @@
     },
     {
       "id": "bounded_list",
-      "script": "bounded_list.json",
-      "sizes": [0, 64, 65],
-      "storage_generator": "list_nat",
+      "script": "../strategy-v1/bounded_last64.json",
+      "sizes": [0, 63, 64, 65, 256],
+      "storage_generator": "descending_list_nat",
       "input_generator": "unit",
-      "expected": "success"
+      "expected": "success",
+      "gas_cap": 20000
     },
     {
       "id": "loop",

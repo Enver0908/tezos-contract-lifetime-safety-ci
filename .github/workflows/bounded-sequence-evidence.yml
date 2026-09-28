@@ -1,0 +1,174 @@
+name: Bounded last-64 lifetime evidence — manual only
+
+# This workflow runs the full sequence twice and rechecks the growth-v2 corpus
+# on each of three clean hosted runners. It is deliberately not dispatched by
+# ordinary pushes. It may produce several hours of public Actions records.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  reproduce:
+    name: bounded-sequence-clean-runner-${{ matrix.runner_id }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        runner_id: [one, two, three]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.10"
+      - name: Install TLSCI
+        run: python -m pip install .
+      - name: Record immutable hosted-run identity
+        run: |
+          python "$GITHUB_WORKSPACE/tools/write_hosted_metadata.py" \
+            --output "$GITHUB_WORKSPACE/outputs/bounded-sequence-v1-${{ matrix.runner_id }}/metadata.json" \
+            --runner-id "${{ matrix.runner_id }}" \
+            --commit "$GITHUB_SHA" \
+            --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --workflow-ref "$GITHUB_WORKFLOW_REF"
+      - name: Verify pinned Octez image, protocol, and gas limit
+        run: tlsci --runtime "$GITHUB_WORKSPACE/runtime.lock.json" doctor
+      - name: Build and measure first fresh 4,096-call chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$GITHUB_WORKSPACE/outputs/bounded-sequence-v1-${{ matrix.runner_id }}"
+          python "$GITHUB_WORKSPACE/tools/build_bounded_sequence.py" \
+            --output-dir "$root/run-a/corpus" \
+            --runtime "$GITHUB_WORKSPACE/runtime.lock.json"
+          cd "$RUNNER_TEMP"
+          tlsci --runtime "$GITHUB_WORKSPACE/runtime.lock.json" run \
+            --manifest "$root/run-a/corpus/manifest.json" \
+            --policy "$GITHUB_WORKSPACE/policy.json" \
+            --output-dir "$root/run-a/measurement" \
+            --timeout 60 --skip-doctor
+      - name: Build and measure second fresh 4,096-call chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$GITHUB_WORKSPACE/outputs/bounded-sequence-v1-${{ matrix.runner_id }}"
+          python "$GITHUB_WORKSPACE/tools/build_bounded_sequence.py" \
+            --output-dir "$root/run-b/corpus" \
+            --runtime "$GITHUB_WORKSPACE/runtime.lock.json"
+          cd "$RUNNER_TEMP"
+          tlsci --runtime "$GITHUB_WORKSPACE/runtime.lock.json" run \
+            --manifest "$root/run-b/corpus/manifest.json" \
+            --policy "$GITHUB_WORKSPACE/policy.json" \
+            --output-dir "$root/run-b/measurement" \
+            --timeout 60 --skip-doctor
+      - name: Measure all growth-v2 cases twice
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$GITHUB_WORKSPACE/outputs/bounded-sequence-v1-${{ matrix.runner_id }}"
+          cd "$RUNNER_TEMP"
+          tlsci --runtime "$GITHUB_WORKSPACE/runtime.lock.json" run \
+            --manifest "$GITHUB_WORKSPACE/fixtures/growth-v2/manifest.json" \
+            --policy "$GITHUB_WORKSPACE/policy.json" \
+            --output-dir "$root/growth-v2" \
+            --timeout 60 --skip-doctor
+      - name: Recheck growth-v2 semantic acceptance
+        shell: bash
+        run: |
+          set +e
+          python "$GITHUB_WORKSPACE/tools/verify_growth_report.py" \
+            "$GITHUB_WORKSPACE/outputs/bounded-sequence-v1-${{ matrix.runner_id }}/growth-v2/report.json" \
+            --runtime "$GITHUB_WORKSPACE/runtime.lock.json" \
+            --output "$GITHUB_WORKSPACE/outputs/bounded-sequence-v1-${{ matrix.runner_id }}/growth-v2/acceptance.json"
+          status=$?
+          set -e
+          if [ "$status" -gt 1 ]; then
+            echo "growth-v2 verification had an integrity or runtime error: $status"
+            exit "$status"
+          fi
+      - name: Create independently verified technical GO decision
+        run: |
+          root="$GITHUB_WORKSPACE/outputs/bounded-sequence-v1-${{ matrix.runner_id }}"
+          python "$GITHUB_WORKSPACE/tools/verify_technical_go_v3.py" \
+            --growth-report "$root/growth-v2/report.json" \
+            --run-a-corpus "$root/run-a/corpus" \
+            --run-a-report "$root/run-a/measurement/report.json" \
+            --run-a-acceptance "$root/run-a/bounded-acceptance.json" \
+            --run-b-corpus "$root/run-b/corpus" \
+            --run-b-report "$root/run-b/measurement/report.json" \
+            --run-b-acceptance "$root/run-b/bounded-acceptance.json" \
+            --runtime "$GITHUB_WORKSPACE/runtime.lock.json" \
+            --output "$root/technical-mvp-go-v3.json"
+      - name: Run unit and integration tests
+        if: always()
+        run: python -m unittest discover -s "$GITHUB_WORKSPACE/tests" -p 'test_*.py' -v
+      - name: Upload complete run evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bounded-sequence-v1-${{ matrix.runner_id }}
+          path: outputs/bounded-sequence-v1-${{ matrix.runner_id }}/
+          if-no-files-found: error
+          retention-days: 14
+
+  compare:
+    name: compare-three-clean-runners
+    if: always()
+    needs: [reproduce]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.10"
+      - name: Install report comparison tool
+        run: python -m pip install .
+      - name: Download clean-runner evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: bounded-sequence-v1-*
+          path: outputs/bounded-sequence-clean-runners
+          merge-multiple: false
+          digest-mismatch: error
+      - name: Verify run identity, all GO gates, and three-runner agreement
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tools/verify_hosted_evidence.py \
+            --root outputs/bounded-sequence-clean-runners \
+            --commit "$GITHUB_SHA" \
+            --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --workflow-ref "$GITHUB_WORKFLOW_REF" \
+            --reproduce-result "${{ needs.reproduce.result }}" \
+            --output outputs/hosted-evidence/hosted-acceptance.json
+      - name: Package checksummed public evidence
+        run: |
+          python tools/package_hosted_evidence.py \
+            --source outputs/bounded-sequence-clean-runners \
+            --summary outputs/hosted-evidence/hosted-acceptance.json \
+            --output outputs/hosted-evidence/tezos-lifetime-safety-evidence.tar.gz
+      - name: Publish immutable evidence prerelease
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python tools/publish_hosted_evidence_release.py \
+            --archive outputs/hosted-evidence/tezos-lifetime-safety-evidence.tar.gz \
+            --output outputs/hosted-evidence/release.json
+      - name: Preserve hosted summary and release receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: hosted-evidence-summary-${{ github.run_id }}-${{ github.run_attempt }}
+          path: outputs/hosted-evidence/
+          if-no-files-found: warn
+          retention-days: 14

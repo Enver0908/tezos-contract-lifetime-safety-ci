@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "scenario_id": "bounded_last64_lifetime_v1",
+  "maximum_completed_calls": 4096,
+  "storage_limit": 64,
+  "checkpoint_calls": [0, 1, 8, 63, 64, 65, 256, 1024, 4096],
+  "repetitions_per_manifest": 2,
+  "call_timeout_seconds": 60,
+  "maximum_sequence_seconds": 21600,
+  "runtime": {
+    "octez_digest": "tezos/tezos@sha256:409124c53d848413eb83a5d1b19164fec5afe56117073534b657042d04173d07",
+    "octez_version": "Octez 25.2",
+    "protocol": "PsUshuai9QapM5TGj1JpuVGkdxz5GykdnEvS6Rh8SUVrARvZLCY",
+    "chain_id": "NetXdQprcVkpaWU",
+    "hard_gas_limit_per_operation": 1040000
+  },
+  "source_files": {
+    "script": {
+      "path": "../growth-v2/contracts/synthetic/bounded_last64_append.json",
+      "sha256": "ab8d4acd5890fd9d5b7db7cdb1bfddfa5c56fb37d2bbd1c443e1f10226ba6c8e"
+    },
+    "input": {
+      "path": "../growth-v2/cases/bounded_last64_append/0.input.json",
+      "sha256": "523303a51c3a118ad70eaf8d09b3bf946e699c25b1876064e85e5d96bf1ebffa"
+    },
+    "context": {
+      "path": "../growth-v2/cases/bounded_last64_append/0.context.json",
+      "sha256": "30f14f9a47614a7750f65435887000586bccf8272fd695ecafcdcff4be5277c9"
+    }
+  },
+  "predeclared_expectation": {
+    "initial_storage": [],
+    "parameter": {"prim": "Unit"},
+    "prepended_value": {"int": "1"},
+    "storage_cardinality_after_calls": "min(completed_calls, 64)",
+    "storage_after_64_calls": [{"int": "1"}],
+    "post_saturation_budget_rule": "minimum successful gas budget is identical at completed_calls 64, 65, 256, 1024, and 4096",
+    "growth_v2_thresholds": "unchanged; the new bounded-state condition is exact equality after saturation"
+  }
+}

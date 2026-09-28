@@ -1,0 +1,98 @@
+{
+  "args": [
+    [
+      {
+        "args": [
+          {
+            "string": "tz1KqMM65Jwo7xEfAswt6SqW2qhxHZZJqdMt"
+          },
+          {
+            "int": "1"
+          }
+        ],
+        "prim": "Elt"
+      },
+      {
+        "args": [
+          {
+            "string": "tz1TaPBo1c7poGN2cy5TsosFpnc9bLMTmwqa"
+          },
+          {
+            "int": "1"
+          }
+        ],
+        "prim": "Elt"
+      },
+      {
+        "args": [
+          {
+            "string": "tz1TcQgC5rz4rAEwo9ivHt2hqDBcHX8Hvscq"
+          },
+          {
+            "int": "1"
+          }
+        ],
+        "prim": "Elt"
+      },
+      {
+        "args": [
+          {
+            "string": "tz1WfPm7KooUDEzdgvcfxdoq4av6mzySC8Aj"
+          },
+          {
+            "int": "1"
+          }
+        ],
+        "prim": "Elt"
+      },
+      {
+        "args": [
+          {
+            "string": "tz1bA3FFtPvvzESHXVwtzEEqzhgjz6qkm6Mb"
+          },
+          {
+            "int": "1"
+          }
+        ],
+        "prim": "Elt"
+      },
+      {
+        "args": [
+          {
+            "string": "tz1ddb9NMYHZi5UzPdzTZMYQQZoMub195zgv"
+          },
+          {
+            "int": "1"
+          }
+        ],
+        "prim": "Elt"
+      },
+      {
+        "args": [
+          {
+            "string": "tz1fY1tmeaKQyjuMPpFVZSt9VmJYtEGLcBaW"
+          },
+          {
+            "int": "1"
+          }
+        ],
+        "prim": "Elt"
+      },
+      {
+        "args": [
+          {
+            "string": "tz1i9ZDv2SAnxcFZw7ev1nNTysxjB1MHYrFF"
+          },
+          {
+            "int": "1"
+          }
+        ],
+        "prim": "Elt"
+      }
+    ],
+    {
+      "int": "0"
+    }
+  ],
+  "prim": "Pair"
+}

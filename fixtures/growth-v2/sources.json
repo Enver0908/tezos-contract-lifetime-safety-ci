@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "scope": "technical reproduction only; not adoption, demand, payment intent, grant acceptance, or revenue",
+  "derived_fixture_templates": {
+    "tzsafe-sign-proposal-content": {
+      "file": "templates/tzsafe-sign-proposal-content.json",
+      "sha256": "4eeabe82f876a64ce0959015fee70d8e91a995eca5fbc24661f43619e8aee66f",
+      "nature": "minimal representative FA2 transfer proposal content derived from the pinned TzSafe sign_proposal integration parameter; transfer amount is set to one mutez for deterministic mockup execution",
+      "upstream_contract": "tzsafe",
+      "upstream_operation": "sign_proposal"
+    }
+  },
+  "synthetic_sources": {
+    "bounded_last64_append": {
+      "compiled_michelson_sha256": "ab8d4acd5890fd9d5b7db7cdb1bfddfa5c56fb37d2bbd1c443e1f10226ba6c8e",
+      "nature": "repository-owned synthetic Michelson control; not an upstream production contract",
+      "source_file": "contracts/synthetic/bounded_last64_append.json"
+    },
+    "flattened_allowance_big_map_lookup": {
+      "compiled_michelson_sha256": "61efeabf4567e29854e1ba3ed670e1b1a6d6f58d5188cc9851667908a424ecbe",
+      "nature": "repository-owned synthetic Michelson control; not an upstream production contract",
+      "source_file": "contracts/synthetic/flattened_allowance_lookup.json"
+    },
+    "lazy_big_map_lookup": {
+      "compiled_michelson_sha256": "84947b9c98d815106829c68d1664646eedc5e1919a8a183f18f8c53fa9f51b67",
+      "nature": "repository-owned synthetic Michelson control; not an upstream production contract",
+      "source_file": "contracts/synthetic/lazy_big_map_lookup.json"
+    },
+    "nested_allowance_lookup": {
+      "compiled_michelson_sha256": "84e0d9b0d3583f28ab966116797ebf525a698bb703e333508ac7747c80e9174e",
+      "nature": "repository-owned synthetic Michelson control; not an upstream production contract",
+      "source_file": "contracts/synthetic/nested_allowance_lookup.json"
+    },
+    "ordinary_map_lookup": {
+      "compiled_michelson_sha256": "48e794190c62ede616f6aaf729bce67d5b92e17703d324b062b193a901eb5468",
+      "nature": "repository-owned synthetic Michelson control; not an upstream production contract",
+      "source_file": "contracts/synthetic/ordinary_map_lookup.json"
+    },
+    "unbounded_list_append": {
+      "compiled_michelson_sha256": "a16887702f833d04cecd1fbcdc5c3c53be9e0e4408648146be46ac503a5b5638",
+      "nature": "repository-owned synthetic Michelson control; not an upstream production contract",
+      "source_file": "contracts/synthetic/unbounded_list_append.json"
+    }
+  },
+  "upstream_contracts": {
+    "fa2": {
+      "compiled_michelson_sha256": "15f5441b36cdeb9df35a310b83768516a79a1a7831f7eac4b3b9d54030e9aa2b",
+      "license_file": "fa2-UPSTREAM-LICENSE.txt",
+      "reference": {
+        "commit": "d0d29250ccbf3fb2b8839c2862712602ccb50af2",
+        "compiler": "LIGO 1.6.0",
+        "compiler_image_digest": "sha256:f48d912d927eede22c4dd5a88e5a99f69b13c8a724a2510b2a46a0eb45ec30a2",
+        "compiler_protocol": "upstream default; Makefile PROTOCOL_OPT is unset",
+        "operation": "transfer",
+        "repository": "https://github.com/ligolang/contract-catalogue",
+        "source_path": "lib/fa2/asset/single_asset.impl.mligo"
+      }
+    },
+    "tzsafe": {
+      "compiled_michelson_sha256": "8dbafb67a44ed8a8cd4652aa38906eac3d22e151dca44253669c0ea79490fe32",
+      "license_file": "tzsafe-UPSTREAM-LICENSE.txt",
+      "reference": {
+        "commit": "a729e5e22c964f59cdfbbe9a3781130f3dc578b2",
+        "compiler": "LIGO 0.73.0",
+        "compiler_image_digest": "sha256:6d9839ba3ca6190fb6d8cf39f76c618ed54af924a5c9187deea68a7e10b087b8",
+        "compiler_protocol": "Nairobi",
+        "operation": "sign_proposal",
+        "repository": "https://github.com/marigold-dev/tzsafe",
+        "source_path": "app/main.mligo"
+      }
+    }
+  }
+}

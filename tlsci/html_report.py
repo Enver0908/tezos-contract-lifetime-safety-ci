@@ -69,6 +69,7 @@ def _measurement_rows(measurements: Iterable[Measurement]) -> str:
             f"<td>{_text(item.scenario_id)}</td>"
             f"<td>{_text(item.size)}</td>"
             f"<td><span class=\"status {escape(item.status)}\">{_text(item.status)}</span></td>"
+            f"<td>{_text(item.cap_kind)}</td>"
             f"<td>{_text(budget if budget is not None else '—')}</td>"
             f"<td>{_text(item.gas_cap)}</td>"
             f"<td>{_text(item.storage_bytes if item.storage_bytes is not None else '—')}</td>"
@@ -118,7 +119,7 @@ th, td {{ text-align: left; padding: 9px 8px; border-bottom: 1px solid #e7ebf3; 
 th {{ color: #4a5670; font-size: .85rem; }}
 .status, .decision {{ border-radius: 999px; padding: 3px 8px; font-size: .82rem; }}
 .success, .pass {{ background: #d8f5e5; color: #12653a; }}
-.invalid, .violation, .over_hard_limit {{ background: #ffe0e0; color: #8a1c1c; }}
+.invalid, .violation, .budget_exceeded, .budget_dependent {{ background: #ffe0e0; color: #8a1c1c; }}
 .grid {{ stroke: #e1e6f0; stroke-width: 1; }} .axis-line {{ stroke: #8b96aa; stroke-width: 1; }}
 .axis {{ fill: #5b667d; font-size: 11px; }} .series {{ fill: none; stroke: #3167d6; stroke-width: 3; }} .point {{ fill: #3167d6; }}
 code {{ word-break: break-all; }}
@@ -140,7 +141,8 @@ code {{ word-break: break-all; }}
 <p>Measurement: minimum successful integer gas budget; this is not exact consumed gas and does not execute internal operations.</p>
 </section>
 <section><h2>Gas budget by fixture size</h2><div class="charts">{_chart(report.measurements)}</div></section>
-<section><h2>Measurements</h2><table><thead><tr><th>Scenario</th><th>Size</th><th>Status</th><th>Minimum budget</th><th>Gas cap</th><th>Storage bytes</th><th>Fixture hash</th></tr></thead><tbody>{_measurement_rows(report.measurements)}</tbody></table></section>
+<section><h2>Measurements</h2><table><thead><tr><th>Scenario</th><th>Size</th><th>Status</th><th>Cap kind</th><th>Minimum budget</th><th>Gas cap</th><th>Canonical storage JSON bytes</th><th>Fixture hash</th></tr></thead><tbody>{_measurement_rows(report.measurements)}</tbody></table></section>
+<p class="muted">Storage bytes count canonical JSON bytes for the storage fixture only; they are not on-chain storage size. The gas cap is a search ceiling; the protocol ceiling is distinct from any project-policy threshold.</p>
 <section><h2>Policy decisions</h2><table><thead><tr><th>Scenario</th><th>Size</th><th>Decision</th><th>Rules</th><th>Message</th></tr></thead><tbody>{_decision_rows(report.decisions)}</tbody></table></section>
 {errors_section}
 <section><h2>Limits</h2><p>A passing result is not a security audit, a guarantee of future callability, a user incident, or evidence of demand or revenue. Review the raw JSON for complete provenance.</p></section>

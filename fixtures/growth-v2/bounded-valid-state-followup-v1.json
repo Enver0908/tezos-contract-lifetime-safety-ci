@@ -1,0 +1,52 @@
+{
+  "description": "Post-hoc diagnostic follow-up after growth-v2 exposed that the 256..4096 bounded-list fixtures start outside the contract's 64-item retention invariant. This manifest preserves only valid pre-call cardinalities; it does not replace or rewrite growth-v2.",
+  "name": "bounded-valid-state-followup-v1-post-hoc",
+  "repetitions": 2,
+  "runtime": {
+    "chain_id": "NetXdQprcVkpaWU",
+    "hard_gas_limit_per_operation": 1040000,
+    "octez_digest": "tezos/tezos@sha256:409124c53d848413eb83a5d1b19164fec5afe56117073534b657042d04173d07",
+    "octez_version": "Octez 25.2",
+    "protocol": "PsUshuai9QapM5TGj1JpuVGkdxz5GykdnEvS6Rh8SUVrARvZLCY"
+  },
+  "scenarios": [
+    {
+      "cases": [
+        {
+          "context_file": "cases/bounded_last64_append/0.context.json",
+          "input_file": "cases/bounded_last64_append/0.input.json",
+          "size": 0,
+          "state_validity": "constructed_state",
+          "storage_file": "cases/bounded_last64_append/0.storage.json"
+        },
+        {
+          "context_file": "cases/bounded_last64_append/1.context.json",
+          "input_file": "cases/bounded_last64_append/1.input.json",
+          "size": 1,
+          "state_validity": "constructed_state",
+          "storage_file": "cases/bounded_last64_append/1.storage.json"
+        },
+        {
+          "context_file": "cases/bounded_last64_append/8.context.json",
+          "input_file": "cases/bounded_last64_append/8.input.json",
+          "size": 8,
+          "state_validity": "constructed_state",
+          "storage_file": "cases/bounded_last64_append/8.storage.json"
+        },
+        {
+          "context_file": "cases/bounded_last64_append/64.context.json",
+          "input_file": "cases/bounded_last64_append/64.input.json",
+          "size": 64,
+          "state_validity": "constructed_state",
+          "storage_file": "cases/bounded_last64_append/64.storage.json"
+        }
+      ],
+      "expected": "success",
+      "id": "bounded_last64_valid_state",
+      "input_generator": "unit",
+      "script": "contracts/synthetic/bounded_last64_append.json",
+      "storage_generator": "explicit"
+    }
+  ],
+  "schema_version": 2
+}
