@@ -10,7 +10,7 @@ This is a technical mockup experiment for one synthetic script, fixed input, fix
 
 The machine-readable authority is `fixtures/bounded-sequence-v1/protocol.json`. It pins:
 
-- Existing code: `fixtures/growth-v2/contracts/synthetic/bounded_last64_append.json`, SHA-256 `ab8d4acdd5890fd9d5b7db7cdb1bfddfa5c56fb37d2bdb1c443e1f10226ba6c8e`.
+- Existing code: `fixtures/growth-v2/contracts/synthetic/bounded_last64_append.json`, SHA-256 `ab8d4acd5890fd9d5b7db7cdb1bfddfa5c56fb37d2bbd1c443e1f10226ba6c8e`.
 - Existing `Unit` input and execution context, with their file hashes recorded in the protocol JSON.
 - Empty initial storage, 4,096 successful sequential calls, a 64-item storage limit, and checkpoints at 0, 1, 8, 63, 64, 65, 256, 1,024, and 4,096 completed calls.
 - Octez 25.2, the pinned image digest, Ushuaia protocol, the recorded chain id, and the 1,040,000 per-operation measurement ceiling from `runtime.lock.json`.
@@ -33,6 +33,12 @@ The existing schema-v2 integer-budget search measures the next invocation from e
 The 0, 1, 8, and 63-call checkpoints describe the fill-up period. The plateau rule applies to the five checkpoints after saturation: 64, 65, 256, 1,024, and 4,096 completed calls. Their minimum successful integer gas budgets must be exactly equal within a run and across both clean local runs. The full state trace, checkpoint storage, and measured budgets must also match across runs.
 
 Exact equality after saturation is a new, predeclared condition derived from this script's fixed `Unit` input, fixed context, and repeated value `1`; it is not a Tezos protocol rule or Foundation requirement. The growth-v2 positive controls and unrelated-ledger negative control keep their original thresholds and must still pass. The old growth-v2 report and its historical bounded comparison remain unchanged.
+
+## Hosted confirmation
+
+The locked protocol was independently reproduced on three clean Ubuntu hosted runners from public `main` commit `65e7f021416efeb9f66dfa0af141d80c2cedb23b` in workflow run `36602735671`, attempt `1`. Runner IDs were `one`, `two`, and `three`. Each runner produced two fresh 4,096-transition chains; the fail-closed comparator found matching bounded summaries and normalized `run-a`/`run-b` reports across all three runners. The published acceptance summary reports `hosted_technical_go: go`, and its `evidence_sha256` is `d1ca275b62ff500f5b7d14abee30956d8ded7744c7bdc95ad2f93e21e428a2df`.
+
+The immutable evidence archive is published at <https://github.com/Enver0908/tezos-contract-lifetime-safety-ci/releases/tag/technical-mvp-go-65e7f021416e-run-36602735671-a1> with SHA-256 `2e07e7ba3c2b9395108df6492a5679aa1e8277635a975cc33eab23d71bca9ecc`. This confirms repeatability of the named fixture under the locked mockup protocol. It does not establish a mainnet incident, arbitrary-contract behaviour, independent-user demand, willingness to pay, a grant award, payment, or revenue. The historical growth-v2 acceptance result remains `measured_technical_criteria_not_met`; this hosted result is a separate bounded-sequence-v1 technical result.
 
 ## Failure handling
 

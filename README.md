@@ -81,13 +81,21 @@ Bu eşik Foundation şartı veya protokol limiti değildir. Gerçek kontrat öl�
 
 Bu çalışma ağacında growth-v2’nin 61/61 vakası iki geçişte başarılı oldu; üst seviye hata yoktu, run exit `0` ve reproducibility geçti. Seçilmiş 10 doğrudan Octez replay’i semantic çıktı ve bir-altı gas sınırını doğruladı. Unbounded append size 1→4.096 `410→2.535`; TzSafe `sign_proposal` prior-signers 1→256 `6.154→8.377`; FA2 batch 1→256 `2.150→4.648` minimum successful integer gas budget gösterdi. Bunlar exact consumed gas değildir ve kullanıcı olayı/talebi değildir.
 
-**Teknik growth-v2 kabul kararı yine NO-GO.** Bounded-last-64 fixture’ında size 64→4.096 bütçe `490→2.382` oldu; >64 başlangıç state’leri fixture’ın 64 öğe invariantı dışındadır ama script tüm listeyi iter. Çıkış 64 öğede kalır; bu ölçüm geçerli-state plateau’su kanıtlamaz. Ayrı 0/1/8/64 takip koşusu 435/436/442/490 verdi; bu sonradan tasarlanmış tanı koşusudur ve özgün NO-GO’yu değiştirmez. Tam rapor/acceptance artifact’ları yerel `outputs/` dizininde tutulur; public GitHub’a push edilmemiştir. Kullanıcı ihtiyacı, zarar, ödeme isteği, grant kabulü veya gelir iddiası çıkarılamaz.
+**Tarihsel growth-v2 bounded kabul kararı NO-GO olarak korunur.** Bounded-last-64 fixture’ında size 64→4.096 bütçe `490→2.382` oldu; >64 başlangıç state’leri fixture’ın 64 öğe invariantı dışındadır ama script tüm listeyi iter. Çıkış 64 öğede kalır; bu ölçüm geçerli-state plateau’su kanıtlamaz. Ayrı 0/1/8/64 takip koşusu 435/436/442/490 verdi; bu sonradan tasarlanmış tanı koşusudur ve özgün tarihsel NO-GO’yu değiştirmez. Yeni bounded-sequence-v1 sonucu aşağıdaki ayrı, ulaşılan-state deneyidir. Kullanıcı ihtiyacı, zarar, ödeme isteği, grant kabulü veya gelir iddiası çıkarılamaz.
 
 ## Bounded last-64 ardışık yaşam süresi deneyi
 
 `fixtures/bounded-sequence-v1/protocol.json` yeni, sürümlenmiş deneyin sabit kurallarını ve kaynak özetlerini taşır. Üretici boş depodan başlar; aynı pinned Michelson kontratına `Unit` girdisini 4.096 kez Octez mockup üzerinde uygular ve her dönen depoyu hemen sonraki çağrıya verir. `completed_calls` ile `storage_cardinality` ayrı tutulur. Önceden kaydedilmiş noktalar 0, 1, 8, 63, 64, 65, 256, 1.024 ve 4.096 çağrıdır. 64 dolduktan sonraki beş noktada minimum başarılı gas bütçesi birebir aynı olmalıdır.
 
 Tam protokol ve hata koşulları [`docs/bounded-sequence-v1-protocol.md`](docs/bounded-sequence-v1-protocol.md) içinde; üretici, doğrulayıcı ve birleştirilmiş v3 kabul aracı `tools/` altında tanımlıdır. Üretici tek başına yürütüldüğünde Docker gerekir ve run başına altı saatlik üst sınır uygular. Herhangi bir sonuç görülmeden kabul kuralı değiştirilmez. Yeni deney geçse bile iddia yalnızca bu fixture, sabit girdi/bağlam ve pinned mockup için geçerlidir; kullanıcı ihtiyacı, mainnet zararı veya ödeme talebi hakkında kanıt oluşturmaz.
+
+## Hosted bounded-sequence doğrulaması — 29 Eylül 2026
+
+Sabitlenmiş public `main` commit’i `65e7f021416efeb9f66dfa0af141d80c2cedb23b` için manual workflow run `36602735671` / attempt `1`, üç ayrı temiz Ubuntu hosted runner’ında (`one`, `two`, `three`) tamamlandı. Her runner iki yeni 4.096-transition zinciri, dokuz checkpoint ve minimum-minus-one doğrudan sınır tekrarlarını yürüttü. Üç runner’ın bounded raporları karşılaştırmada eşleşti ve fail-closed hosted kabul sonucu `hosted_technical_go: go` oldu. Tarihsel growth-v2 sonucu paket içinde `measured_technical_criteria_not_met` olarak korunur.
+
+İmzalanmamış fakat checksum’lanmış kabul özeti SHA-256 `d1ca275b62ff500f5b7d14abee30956d8ded7744c7bdc95ad2f93e21e428a2df`; yayımlanan evidence arşivi SHA-256 `2e07e7ba3c2b9395108df6492a5679aa1e8277635a975cc33eab23d71bca9ecc` değerindedir. [Immutable hosted evidence prerelease](https://github.com/Enver0908/tezos-contract-lifetime-safety-ci/releases/tag/technical-mvp-go-65e7f021416e-run-36602735671-a1) ve [workflow run](https://github.com/Enver0908/tezos-contract-lifetime-safety-ci/actions/runs/36602735671) herkese açık olarak incelenebilir.
+
+Bu sonuç, yalnızca isimlendirilmiş fixture’ların sabit input/context ve pinned Octez mockup altında üç temiz runner’da tekrar üretilebilirliğini kanıtlar. Bağımsız kullanıcı incelemesi, kullanıcı talebi, ödeme niyeti, mainnet olayı, grant kabulü veya gelir kanıtı değildir.
 
 Kontrollü maliyet varyantı üretmek için:
 
@@ -101,24 +109,6 @@ python -m tlsci controlled-manifest `
 Bu komut özgün script’in code bölümünün başına semantik olarak etkisiz `PUSH nat 0; DROP` çiftleri ekler. Varyant, özgün kontratta doğal bir açık olduğunu göstermez; baseline politikasının gerçek kontrat kodunda kontrollü maliyet artışını yakaladığını test eder.
 
 Repo lisansı `LICENSE` içindeki MIT lisansıdır. `fixtures/growth-v2/contracts/` altındaki iki upstream derlenmiş Michelson örneğinin kaynak commit ve MIT bildirimleri `sources.json` ve `*-UPSTREAM-LICENSE.txt` dosyalarında kayıtlıdır. Bu fixture bildirimleri başka `references/` kaynakları veya gerçek mainnet snapshot’ları için genel yeniden dağıtım izni anlamına gelmez.
-
-## Önceden belirlenmiş büyüme deneyi
-
-`fixtures/synthetic/confirmatory-v1.json`, sonuç görülmeden sabitlenmiş altı varyantı üç anlamsal çiftte ölçer: sınırsız liste ekleme / geçerli durumda son 64 öğeyi tutma; `map` / `big_map` keyed lookup; iç içe allowance-map / düz `(owner, spender)` big-map anahtarı. Her çift aynı sorgu sonucunu acceptance testinde doğrular. Boyutlar `0, 1, 8, 64, 256, 1024, 4096` ve test bütçe tavanı `20,000` gas’tır. Bu tavan proje politikasıdır; Tezos protokol limiti değildir. Her senaryo iki kez ölçülür.
-
-Octez `run_code` deneyi şu şekilde başlatılır:
-
-```text
-python -m tlsci doctor
-python -m tlsci validate --manifest fixtures/synthetic/confirmatory-v1.json
-python -m tlsci run `
-  --manifest fixtures/synthetic/confirmatory-v1.json `
-  --policy policy.json `
-  --output-dir outputs/confirmatory-v1 `
-  --timeout 60 --skip-doctor
-```
-
-`--skip-doctor` yalnızca aynı pinned Octez image/protocol için hemen önce `doctor` başarılı çalıştırıldıysa kullanılır. Rapor altı fixture varyantını ve constructed state’leri kapsar; kullanıcı storage geçmişi, mainnet olayı, kullanıcı ihtiyacı veya ödeme niyeti kanıtı değildir. Big-map literal girişleri `run_code` state’inin parçasıdır; gerçek kullanıcı zinciri durumuna ulaşılabilirlik iddiası taşımaz.
 
 ## Çıkış kodları
 
